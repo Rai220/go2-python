@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Go2 Web Control</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="layout">
+    <section class="panel hero">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Unitree Go2</p>
+          <h1>Web Control</h1>
+        </div>
+        <div id="connectionBadge" class="badge offline">disconnected</div>
+      </div>
+
+      <form id="connectForm" class="connect-form">
+        <label>
+          <span>Robot IP</span>
+          <input id="robotIp" name="robot_ip" type="text" placeholder="GO2_IP from .env or enter manually">
+        </label>
+
+        <label class="checkbox">
+          <input id="oldSignaling" type="checkbox">
+          <span>Use old signaling</span>
+        </label>
+
+        <div class="row">
+          <button type="submit" class="primary">Connect</button>
+          <button id="disconnectButton" type="button">Disconnect</button>
+          <button id="videoToggleButton" type="button">Video Off</button>
+        </div>
+      </form>
+
+      <p id="statusMessage" class="status-text">Open the page, connect to the robot, then control it with the keyboard.</p>
+    </section>
+
+    <section class="panel camera-panel">
+      <div class="panel-header">
+        <h2>Camera</h2>
+        <span id="videoState" class="subtle">waiting for connection</span>
+      </div>
+      <div class="camera-frame">
+        <img id="cameraFeed" alt="Robot camera feed">
+      </div>
+    </section>
+
+    <section class="panel controls-panel">
+      <div class="panel-header">
+        <h2>Movement</h2>
+        <span class="subtle">WASD or buttons</span>
+      </div>
+
+      <div class="movement-grid">
+        <button class="move-button turn-button" data-key="KeyQ">Q</button>
+        <button class="move-button" data-key="KeyW">W</button>
+        <button class="move-button turn-button" data-key="KeyE">E</button>
+        <button class="move-button" data-key="KeyA">A</button>
+        <button class="move-button stop" data-command="stop">STOP</button>
+        <button class="move-button" data-key="KeyD">D</button>
+        <button class="move-button" data-key="KeyS">S</button>
+      </div>
+
+      <p class="hint">Hold <code>W</code>, <code>A</code>, <code>S</code>, <code>D</code> to move and use <code>Q</code> / <code>E</code> for yaw. Releasing all controls sends stop.</p>
+    </section>
+
+    <section class="panel commands-panel">
+      <div class="panel-header">
+        <h2>Commands</h2>
+        <span class="subtle">Quick actions</span>
+      </div>
+      <div id="commandsGrid" class="commands-grid"></div>
+    </section>
+
+    <section class="panel llm-panel">
+      <div class="panel-header">
+        <h2>LLM Next Action</h2>
+        <span id="llmState" class="subtle">waiting for API key</span>
+      </div>
+
+      <label class="llm-goal">
+        <span>Goal</span>
+        <textarea id="llmGoal" rows="3" placeholder="Example: go closer to the door and stop safely in front of it"></textarea>
+      </label>
+
+      <div class="row">
+        <button id="llmActionButton" type="button" class="primary">Analyze And Execute</button>
+      </div>
+
+      <div id="llmResult" class="llm-result empty">
+        Connect to the robot and ask the model for a safe next step.
+      </div>
+    </section>
+
+    <section class="panel telemetry-panel">
+      <div class="panel-header">
+        <h2>Telemetry</h2>
+        <span class="subtle">Live robot state</span>
+      </div>
+      <div class="telemetry-grid">
+        <div class="metric">
+          <span>Battery</span>
+          <strong id="batteryValue">-</strong>
+        </div>
+        <div class="metric">
+          <span>Power</span>
+          <strong id="powerValue">-</strong>
+        </div>
+        <div class="metric">
+          <span>Mode</span>
+          <strong id="modeValue">-</strong>
+        </div>
+        <div class="metric">
+          <span>Gait</span>
+          <strong id="gaitValue">-</strong>
+        </div>
+        <div class="metric">
+          <span>Body Height</span>
+          <strong id="heightValue">-</strong>
+        </div>
+        <div class="metric">
+          <span>Speed Level</span>
+          <strong id="speedValue">-</strong>
+        </div>
+        <div class="metric wide">
+          <span>Position</span>
+          <strong id="positionValue">-</strong>
+        </div>
+        <div class="metric wide">
+          <span>IMU RPY</span>
+          <strong id="imuValue">-</strong>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
