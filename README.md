@@ -50,6 +50,14 @@ There are three separate pieces in this repo:
 - `go2 serve` — persistent REST server; fastest control path for scripts and AI agents
 - `python web.py` — browser UI for debugging and manual control; separate from `go2 serve`
 
+## Which Mode To Use?
+
+- Use `go2 serve` if you want the fastest control path for AI agents, scripts, or repeated commands
+- Use `go2` CLI for one-off commands or quick manual checks when you do not want to keep a server running
+- Use `python web.py` if you want a browser interface with live video, telemetry, buttons, and sliders
+- Use `CLAUDE.md` or Cursor rules as agent instructions only; they do not start `go2 serve` or `web.py` automatically
+- For best AI-agent performance: start `go2 serve` first, then let the agent use its REST API
+
 ## CLI Reference
 
 All subcommands support `--json` for machine-readable output (for AI agents and scripts).
