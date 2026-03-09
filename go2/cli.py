@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """CLI for controlling Unitree Go2 robot via WebRTC.
 
-Designed for both interactive use and programmatic control by neural networks.
+Designed for both interactive use and programmatic control by AI agents.
 All subcommands support --json for machine-readable output.
 """
 
@@ -12,7 +12,6 @@ import json
 import logging
 import sys
 import time
-from dataclasses import asdict
 from pathlib import Path
 
 from go2.connection import Go2Connection
@@ -241,7 +240,7 @@ async def cmd_move(args) -> None:
             if args.duration > 0:
                 action += f" for {args.duration}s (stopped)"
             else:
-                action += " (continuous — send 'stop' to halt)"
+                action += " (continuous -- send 'stop' to halt)"
             print(f"  {action}")
     finally:
         await conn.disconnect()
@@ -534,13 +533,13 @@ async def cmd_list(args) -> None:
         commands[name] = desc
 
     params = {
-        "body_height": "float — body height (e.g. 0.1-0.32)",
-        "foot_raise_height": "float — foot raise height",
-        "speed_level": "int — speed level 1-3",
-        "gait": "int — gait type 0=idle, 1=trot, 2=run, 3=stairs",
-        "euler": "r,p,y — body euler angles (comma-separated floats)",
-        "video": "on/off — toggle video stream",
-        "audio": "on/off — toggle audio stream",
+        "body_height": "float -- body height (e.g. 0.1-0.32)",
+        "foot_raise_height": "float -- foot raise height",
+        "speed_level": "int -- speed level 1-3",
+        "gait": "int -- gait type 0=idle, 1=trot, 2=run, 3=stairs",
+        "euler": "r,p,y -- body euler angles (comma-separated floats)",
+        "video": "on/off -- toggle video stream",
+        "audio": "on/off -- toggle audio stream",
     }
 
     api_ids = {cmd.name: cmd.value for cmd in SportCommand}
@@ -567,102 +566,17 @@ async def cmd_list(args) -> None:
         print()
 
 
-async def cmd_interactive(args) -> None:
-    """Interactive command loop."""
-    args._need_video = False
-    conn = await _connect(args)
+def cmd_serve(args) -> None:
+    """Start persistent HTTP server for fast curl-based control."""
+    from aiohttp import web as aiohttp_web
+    from go2.server import build_app
 
-    if args.telemetry:
-        conn.on_state_update(_live_telemetry_line)
-
-    try:
-        print("\n--- Go2 Interactive Control ---")
-        print("Commands: stand_up, stand_down, sit, balance, recovery, stop, hello,")
-        print("  stretch, dance1, dance2, front_flip, wiggle_hips, moon_walk, ...")
-        print("Movement (sustained, default 2s):")
-        print("  forward [sec]          — move forward")
-        print("  backward [sec]         — move backward")
-        print("  left [sec] / right [sec] — strafe")
-        print("  turn_left [sec] / turn_right [sec] — rotate")
-        print("  move <x> <y> <yaw> [sec] — custom move")
-        print("Other:")
-        print("  set <param> <value>    — set parameter")
-        print("  status                 — print telemetry")
-        print("  list                   — list all commands")
-        print("  quit                   — disconnect and exit")
-        print()
-
-        loop = asyncio.get_event_loop()
-        while True:
-            try:
-                line = await loop.run_in_executor(None, lambda: input("go2> ").strip())
-            except (EOFError, KeyboardInterrupt):
-                break
-
-            if not line:
-                continue
-
-            parts = line.split()
-            cmd = parts[0].lower()
-
-            if cmd in ("quit", "exit"):
-                break
-            elif cmd == "status":
-                _print_state_human(conn.state)
-            elif cmd == "list":
-                for name, (desc, _) in sorted(SIMPLE_COMMANDS.items()):
-                    print(f"    {name:20s} {desc}")
-            elif cmd == "move" and len(parts) >= 4:
-                x, y, yaw = float(parts[1]), float(parts[2]), float(parts[3])
-                duration = float(parts[4]) if len(parts) >= 5 else 2.0
-                print(f"  Moving x={x} y={y} yaw={yaw} for {duration}s...")
-                await _sustained_move(conn, x, y, yaw, duration)
-                print(f"  Done, stopped")
-            elif cmd in MOVE_COMMANDS:
-                desc, mx, my, myaw = MOVE_COMMANDS[cmd]
-                duration = float(parts[1]) if len(parts) >= 2 else 2.0
-                print(f"  {desc} for {duration}s...")
-                await _sustained_move(conn, mx, my, myaw, duration)
-                print(f"  Done, stopped")
-            elif cmd == "set" and len(parts) >= 3:
-                param = parts[1]
-                value = parts[2]
-                if param == "body_height":
-                    conn.set_body_height(float(value))
-                elif param == "foot_raise_height":
-                    conn.set_foot_raise_height(float(value))
-                elif param == "speed_level":
-                    conn.set_speed_level(int(value))
-                elif param == "gait":
-                    conn.switch_gait(int(value))
-                elif param == "euler" and len(parts) >= 5:
-                    conn.set_euler(float(parts[2]), float(parts[3]), float(parts[4]))
-                elif param == "video":
-                    conn.video(value.lower() in ("on", "true", "1"))
-                elif param == "audio":
-                    conn.audio(value.lower() in ("on", "true", "1"))
-                else:
-                    print(f"  Unknown param: {param}")
-                    continue
-                print(f"  {param} = {value}")
-            elif cmd == "raw" and len(parts) >= 2:
-                api_id = int(parts[1])
-                param = None
-                if len(parts) >= 3:
-                    try:
-                        param = json.loads(" ".join(parts[2:]))
-                    except json.JSONDecodeError:
-                        param = " ".join(parts[2:])
-                conn.send_command(api_id, param)
-                print(f"  Sent api_id={api_id}")
-            elif cmd in SIMPLE_COMMANDS:
-                desc, method = SIMPLE_COMMANDS[cmd]
-                getattr(conn, method)()
-                print(f"  {desc}")
-            else:
-                print(f"  Unknown: {cmd}. Type 'list' for available commands.")
-    finally:
-        await conn.disconnect()
+    aiohttp_web.run_app(
+        build_app(args.ip),
+        host=args.host,
+        port=args.port,
+        access_log=None if not args.debug else logging.getLogger("aiohttp.access"),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -672,7 +586,7 @@ async def cmd_interactive(args) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="go2",
-        description="Unitree Go2 robot CLI controller. Supports interactive, scripted, and neural-network-driven control.",
+        description="Unitree Go2 robot CLI controller. Supports scripted and AI-agent-driven control.",
     )
 
     # Global flags
@@ -744,9 +658,10 @@ def build_parser() -> argparse.ArgumentParser:
     # --- list ---
     sub.add_parser("list", help="List available commands, parameters, and API IDs", aliases=["ls"])
 
-    # --- interactive ---
-    p_int = sub.add_parser("interactive", help="Interactive control mode", aliases=["i", "shell"])
-    p_int.add_argument("--telemetry", action="store_true", help="Show live telemetry updates")
+    # --- serve ---
+    p_serve = sub.add_parser("serve", help="Start persistent HTTP server for fast curl-based control")
+    p_serve.add_argument("--host", default="127.0.0.1", help="Server bind host (default: 127.0.0.1)")
+    p_serve.add_argument("--port", type=int, default=8090, help="Server port (default: 8090)")
 
     return parser
 
@@ -755,7 +670,7 @@ def build_parser() -> argparse.ArgumentParser:
 # Main
 # ---------------------------------------------------------------------------
 
-async def main() -> None:
+def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
@@ -767,10 +682,16 @@ async def main() -> None:
         logging.getLogger("aiortc").setLevel(logging.WARNING)
         logging.getLogger("aioice").setLevel(logging.WARNING)
 
-    # Default to interactive mode if no subcommand
     if not args.subcmd:
-        args.subcmd = "interactive"
-        args.telemetry = False
+        parser.print_help()
+        return
+
+    # serve is synchronous (blocks in aiohttp.run_app)
+    if args.subcmd == "serve":
+        if not args.debug:
+            logging.getLogger("aiohttp.access").setLevel(logging.WARNING)
+        cmd_serve(args)
+        return
 
     # Handle move shortcuts
     if args.subcmd == "move":
@@ -803,9 +724,6 @@ async def main() -> None:
         "raw": cmd_raw,
         "list": cmd_list,
         "ls": cmd_list,
-        "interactive": cmd_interactive,
-        "i": cmd_interactive,
-        "shell": cmd_interactive,
     }
 
     handler = handlers.get(args.subcmd)
@@ -814,7 +732,7 @@ async def main() -> None:
         return
 
     try:
-        await handler(args)
+        asyncio.run(handler(args))
     except KeyboardInterrupt:
         pass
     except Exception as e:
@@ -826,4 +744,4 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

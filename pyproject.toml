@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "go2-robot"
+version = "0.1.0"
+description = "CLI and AI skill for controlling Unitree Go2 robot via WebRTC"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+keywords = ["unitree", "go2", "robot", "webrtc", "cli"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "aiortc>=1.9.0",
+    "aiohttp>=3.9.0",
+    "pycryptodome>=3.20.0",
+    "Pillow>=11.0.0",
+    "numpy",
+]
+
+[project.scripts]
+go2 = "go2.cli:main"
+
+[project.urls]
+Repository = "https://github.com/krestnikov/go2-python"
+
+[tool.setuptools.packages.find]
+include = ["go2*"]
