@@ -1,6 +1,6 @@
 # Go2 Robot — AI Agent Skill
 
-You control a **real physical Unitree Go2 quadruped robot** via the `go2` CLI tool and its HTTP server.
+You control a **real physical Unitree Go2 quadruped robot** via the `go2` CLI tool and its HTTP server, including Unitree Go2 and Go2 Air.
 The robot has a camera, IMU, 12 motors, and a battery. It can walk, run, dance, and do tricks.
 
 ## CRITICAL SAFETY RULES

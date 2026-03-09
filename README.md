@@ -1,6 +1,6 @@
 # go2-robot
 
-CLI tool and AI agent skill for controlling the [Unitree Go2](https://www.unitree.com/go2/) quadruped robot via WebRTC.
+CLI tool and AI agent skill for controlling the [Unitree Go2](https://www.unitree.com/go2/) quadruped robot family via WebRTC, including Unitree Go2 and Go2 Air.
 
 - **`go2` CLI** — command-line tool for scripted and interactive robot control
 - **AI Skill** — `CLAUDE.md` teaches Claude Code / Cursor how to drive the robot
