@@ -7,7 +7,6 @@ name = "go2-robot"
 version = "0.1.0"
 description = "CLI and AI skill for controlling Unitree Go2 robot via WebRTC"
 readme = "README.md"
-license = "MIT"
 requires-python = ">=3.11"
 keywords = ["unitree", "go2", "robot", "webrtc", "cli"]
 classifiers = [

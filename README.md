@@ -273,8 +273,7 @@ go2-python/
 ├── web/                    # Web UI static assets
 ├── CLAUDE.md               # AI agent skill
 ├── pyproject.toml          # Package configuration
-├── requirements.txt        # Dependencies
-└── LICENSE                 # MIT
+└── requirements.txt        # Dependencies
 ```
 
 ## Protocol
@@ -285,6 +284,8 @@ Connection via WebRTC with SCTP data channel. HTTP signaling:
 
 All methods are tried automatically in sequence.
 
-## License
+## Copyright
 
-MIT
+Copyright (c) 2025 Kirill Krestnikov
+
+License will be added later.

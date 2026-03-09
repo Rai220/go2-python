@@ -13,7 +13,7 @@ Make go2-python a publishable CLI tool (`go2`) and AI skill for Claude Code / Cu
 - [x] Delete `AGENTS.md` (redundant, replaced by CLAUDE.md)
 - [x] Rewrite `CLAUDE.md` as AI skill (English, safety rules, CLI/curl usage)
 - [x] Rewrite `README.md` (English, installation, usage, skill docs)
-- [x] Add `LICENSE` (MIT)
+- [ ] Add project license later
 - [x] Add `.env.example`
 - [x] Update `.gitignore`
 - [x] Keep `web.py` + `web/` (legacy debugging UI, will be developed further)
