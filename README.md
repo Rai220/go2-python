@@ -286,6 +286,6 @@ All methods are tried automatically in sequence.
 
 ## Copyright
 
-Copyright (c) 2025 Kirill Krestnikov
+Copyright (c) 2025 Konstantin Krestnikov
 
 License will be added later.
